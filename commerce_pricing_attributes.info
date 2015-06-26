@@ -1,0 +1,9 @@
+name = Commerce Pricing Attributes
+description = Provides an advanced widget for commerce_option entity to create per product price calculations depending on attributes.
+core = 7.x
+package = Commerce (contrib)
+dependencies[] = commerce_option (2.x)
+dependencies[] = commerce_product_pricing
+
+; Module file includes
+files[] = commerce_pricing_attributes.rules.inc
