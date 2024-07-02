@@ -67,6 +67,37 @@ function commerce_pricing_attributes_property_info_callback(&$info, $entity_type
   unset($property['query callback']);
 }
 
+
+function commerce_product_attributes_access_to_line_item($line_item, $account = NULL) {
+    global $user;
+    static $access = array();
+    $account = isset($account) ? $account : clone $user;
+    $key = NULL;
+    if (isset($line_item->line_item_id) && isset($account->uid)) {
+        $key = $line_item->line_item_id . '__' . $account->uid;
+        if (isset($access[$key])) {
+            return $access[$key];
+        }
+    }
+
+    // If the user has the administration permission, return TRUE now.
+    if (user_access('administer line items', $account)) {
+        $access[$key] = TRUE;
+        return $access[$key];
+    }
+    if (!empty($line_item->order_id) && module_exists('commerce_order')) {
+        $order = commerce_order_load($line_item->order_id);
+        if ($order->status == 'cart' && ($order->uid === 0 || $order->uid == $account->uid)) {
+            $access[$key] = TRUE;
+            return $access[$key];
+        }
+    }
+    $access[$key] = FALSE;
+    return $access[$key];
+}
+
+
+
 /**
  * Returns the default array structure for a commerce_pricing_attributes
  * field for use when creating new data arrays through an entity
